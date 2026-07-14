@@ -82,3 +82,4 @@ C:\WORK1\AKM.Gearbox.MES.WorkerService\obj\Debug\net8.0\refint\AKM.Gearbox.MES.W
 C:\WORK1\AKM.Gearbox.MES.WorkerService\obj\Debug\net8.0\AKM.Gearbox.MES.WorkerService.pdb
 C:\WORK1\AKM.Gearbox.MES.WorkerService\obj\Debug\net8.0\AKM.Gearbox.MES.WorkerService.genruntimeconfig.cache
 C:\WORK1\AKM.Gearbox.MES.WorkerService\obj\Debug\net8.0\ref\AKM.Gearbox.MES.WorkerService.dll
+C:\WORK1\AKM.Gearbox.MES.WorkerService\obj\Debug\net8.0\AKM.Gearbox.MES.WorkerService.sourcelink.json

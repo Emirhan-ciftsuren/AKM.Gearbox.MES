@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AKM.Gearbox.MES.WorkerService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dd02bdf557bbff34a4c2d994cd1ba63a650eacb2")]
 [assembly: System.Reflection.AssemblyProductAttribute("AKM.Gearbox.MES.WorkerService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AKM.Gearbox.MES.WorkerService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

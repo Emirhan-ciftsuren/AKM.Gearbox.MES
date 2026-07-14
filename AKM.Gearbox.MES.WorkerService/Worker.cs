@@ -17,9 +17,10 @@ namespace AKM.Gearbox.MES.WorkerService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             // Klasör yollarýný ve baðlantý cümlesini güvenli bir þekilde tanýmlýyoruz
-            string inputPath = @"C:\MES_Files\Input";
-            string successedPath = @"C:\MES_Files\Successed";
-            string failedPath = @"C:\MES_Files\Failed";
+            string inputPath = _configuration["FolderPaths:Input"] ?? @"C:\MES_Files\Input";
+            string successedPath = _configuration["FolderPaths:Successed"] ?? @"C:\MES_Files\Successed";
+            string failedPath = _configuration["FolderPaths:Failed"] ?? @"C:\MES_Files\Failed";
+            
             string connectionString = _configuration.GetConnectionString("DefaultConnection") ?? "Server=localhost;Database=SirketAdi_Gearbox_MES;Trusted_Connection=True;TrustServerCertificate=True;";
 
             // Klasör kontrollerini üretim garantisi için tutuyoruz
