@@ -67,7 +67,8 @@ namespace AKM.Gearbox.MES.Desktop.Services
         // 4. DELETE - Sipariş Sil
         public async Task<bool> DeleteOrderAsync(string orderId)
         {
-            var response = await _httpClient.DeleteAsync($"{_baseUrl}/{orderId}");
+            // API tarafında [HttpDelete("{id}")] olduğu için id parametresini direkt URL sonuna ekliyoruz
+            var response = await _httpClient.DeleteAsync($"{_baseUrl}/{Uri.EscapeDataString(orderId)}");
             return response.IsSuccessStatusCode;
         }
     }

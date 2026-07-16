@@ -3,10 +3,130 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AKM.Gearbox.MES.Desktop"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Gearbox MES - Management Application" Height="650" Width="1000"
+        WindowStartupLocation="CenterScreen" Background="#F3F4F6" FontFamily="Segoe UI">
 
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <!-- Header Bölümü -->
+            <RowDefinition Height="Auto"/>
+            <!-- Form ve Kontroller -->
+            <RowDefinition Height="Auto"/>
+            <!-- Veri Tablosu -->
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- HEADER BANNER -->
+        <Border Grid.Row="0" Background="#1E3A8A" CornerRadius="8" Padding="15" Margin="0,0,0,15">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⚙️" FontSize="26" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <StackPanel>
+                        <TextBlock Text="GEARBOX MES - MANAGEMENT PANEL" FontWeight="Bold" FontSize="18" Foreground="White"/>
+                        <TextBlock Text="İş Emri Takip, Düzenleme ve Yönetim Paneli" FontSize="11" Foreground="#93C5FD"/>
+                    </StackPanel>
+                </StackPanel>
+                <Button Content="Yenile (Refresh)" Name="BtnRefresh" Click="BtnRefresh_Click" HorizontalAlignment="Right" 
+                        Background="#2563EB" Foreground="White" BorderThickness="0" Padding="15,8" FontWeight="SemiBold">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="5"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- YENİ İŞ EMRİ EKLEME VE GÜNCELLEME FORMU -->
+        <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="15" Margin="0,0,0,15" BorderBrush="#E5E7EB" BorderThickness="1">
+            <StackPanel>
+                <TextBlock Text="Yeni İş Emri Girişi / Düzenleme" FontWeight="Bold" FontSize="14" Margin="0,0,0,10" Foreground="#374151"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Order ID -->
+                    <StackPanel Grid.Column="0" Margin="5,0">
+                        <TextBlock Text="İş Emri ID (OrderId):" FontSize="11" Margin="0,0,0,4" Foreground="#4B5563"/>
+                        <TextBox Name="TxtOrderId" Padding="6" BorderBrush="#D1D5DB" BorderThickness="1"/>
+                    </StackPanel>
+
+                    <!-- Order Description -->
+                    <StackPanel Grid.Column="1" Margin="5,0">
+                        <TextBlock Text="Açıklama (Description):" FontSize="11" Margin="0,0,0,4" Foreground="#4B5563"/>
+                        <TextBox Name="TxtDescription" Padding="6" BorderBrush="#D1D5DB" BorderThickness="1"/>
+                    </StackPanel>
+
+                    <!-- Order Type -->
+                    <StackPanel Grid.Column="2" Margin="5,0">
+                        <TextBlock Text="Sipariş Tipi (Type):" FontSize="11" Margin="0,0,0,4" Foreground="#4B5563"/>
+                        <ComboBox Name="CmbOrderType" SelectedIndex="0" Padding="6">
+                            <ComboBoxItem Content="Gearbox_Standard"/>
+                            <ComboBoxItem Content="Gearbox_Heavy"/>
+                            <ComboBoxItem Content="Gearbox_Custom"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Status -->
+                    <StackPanel Grid.Column="3" Margin="5,0">
+                        <TextBlock Text="Durum (Status):" FontSize="11" Margin="0,0,0,4" Foreground="#4B5563"/>
+                        <ComboBox Name="CmbStatus" SelectedIndex="0" Padding="6">
+                            <ComboBoxItem Content="New"/>
+                            <ComboBoxItem Content="In Progress"/>
+                            <ComboBoxItem Content="Completed"/>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Butonlar -->
+                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="5,0">
+                        <Button Content="Kaydet" Name="BtnSave" Click="BtnSave_Click" Width="80" Height="30" Background="#10B981" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Margin="0,0,5,0">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                        <Button Content="Sil" Name="BtnDelete" Click="BtnDelete_Click" Width="60" Height="30" Background="#EF4444" Foreground="White" BorderThickness="0" FontWeight="SemiBold">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </Button.Resources>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- VERİ TABLOSU (DATAGRID) -->
+        <DataGrid Grid.Row="2" Name="DgOrders" AutoGenerateColumns="False" IsReadOnly="True" 
+                  Background="White" BorderBrush="#E5E7EB" BorderThickness="1" RowHeight="35"
+                  SelectionChanged="DgOrders_SelectionChanged" GridLinesVisibility="Horizontal" AlternatingRowBackground="#F9FAFB">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#F3F4F6"/>
+                    <Setter Property="Foreground" Value="#374151"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                    <Setter Property="Padding" Value="10,5"/>
+                    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                    <Setter Property="BorderBrush" Value="#E5E7EB"/>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="İş Emri ID" Binding="{Binding OrderId}" Width="1.2*"/>
+                <DataGridTextColumn Header="Açıklama" Binding="{Binding OrderDesc}" Width="2*"/>
+                <DataGridTextColumn Header="Oluşturulma Tarihi" Binding="{Binding OrderCreationDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="1.5*"/>
+                <DataGridTextColumn Header="Tip" Binding="{Binding OrderType}" Width="1.2*"/>
+                <DataGridTextColumn Header="Durum" Binding="{Binding OrderStatus}" Width="1.2*"/>
+                <DataGridTextColumn Header="Oluşturan" Binding="{Binding CreatedBy}" Width="1*"/>
+                <DataGridCheckBoxColumn Header="İşlendi mi?" Binding="{Binding IsProcessed}" Width="1*"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Window>
