@@ -1,0 +1,21 @@
+# Visual Studio
+.vs/
+*.vsidx
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build sonuçları
+bin/
+obj/
+Debug/
+Release/
+
+# Rider
+.idea/
+*.iml
+
+# Logs
+logs/
+*.log

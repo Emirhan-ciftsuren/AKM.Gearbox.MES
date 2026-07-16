@@ -1,0 +1,6 @@
+@AKM.Gearbox.MES.API_HostAddress = http://localhost:5293
+
+GET {{AKM.Gearbox.MES.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
