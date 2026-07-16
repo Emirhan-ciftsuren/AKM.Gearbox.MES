@@ -55,6 +55,59 @@ namespace AKM.Gearbox.MES.API.Controllers
                 return StatusCode(500, $"Veritabanı hatası: {ex.Message}");
             }
         }
+        // 2. POST METODU: Dışarıdan gelen sipariş güncelleme isteklerini karşılar
+        // Adres: POST http://localhost:5293/api/orders/update-status
+        [HttpPost("update-status")]
+        public IActionResult UpdateOrderStatus([FromBody] UpdateStatusRequest request)
+        {
+            // Gelen istekte sipariş kodu veya durum boşsa hata dön
+            if (string.IsNullOrEmpty(request.OrderId) || string.IsNullOrEmpty(request.Status))
+            {
+                return BadRequest("Sipariş Kodu (OrderId) ve Durum (Status) boş olamaz.");
+            }
 
+            string connectionString = _configuration.GetConnectionString("DefaultConnection") ?? "";
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    // SQL Update sorgusu: İlgili siparişin durumunu güncelliyoruz
+                    string query = "UPDATE Orders SET OrderStatus = @Status WHERE OrderId = @OrderId";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        // SQL Injection güvenliği için parametre kullanıyoruz
+                        cmd.Parameters.AddWithValue("@Status", request.Status);
+                        cmd.Parameters.AddWithValue("@OrderId", request.OrderId);
+
+                        int affectedRows = cmd.ExecuteNonQuery();
+
+                        // Eğer veritabanında böyle bir sipariş kodu bulunamadıysa
+                        if (affectedRows == 0)
+                        {
+                            return NotFound($"Belirtilen OrderId ({request.OrderId}) bulunamadı.");
+                        }
+                    }
+                }
+
+                // Güncelleme başarılıysa 200 Başarılı kodu dön ve mesaj ver
+                return Ok(new { Message = $"Sipariş {request.OrderId} başarıyla '{request.Status}' olarak güncellendi." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Veritabanı güncelleme hatası: {ex.Message}");
+            }
+        }
+    } // OrdersController sınıfının sonu
+
+    // API'ye dışarıdan gönderilecek veri formatını (şablonunu) tanımlıyoruz
+    public class UpdateStatusRequest
+    {
+        public string OrderId { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
     }
 }
+    
