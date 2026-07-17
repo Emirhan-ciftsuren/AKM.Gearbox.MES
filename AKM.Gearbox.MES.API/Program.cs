@@ -15,10 +15,15 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// 2. CORS ayarýný uygulamada aktif ediyoruz
+// [ÖNEMLÝ SIRALAMA] Gelen isteklerin nereye gideceðini belirlemek için önce Routing çalýþmalý
+app.UseRouting();
+
+// [ÖNEMLÝ SIRALAMA] Yönlendirme yapýldýktan sonra CORS iznini kontrol ediyoruz
 app.UseCors("AllowAll");
 
 app.UseAuthorization();
+
+// En son controller endpoint'lerini eþleþtirip çalýþtýrýyoruz
 app.MapControllers();
 
 app.Run();

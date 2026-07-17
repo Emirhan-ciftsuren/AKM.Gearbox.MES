@@ -110,12 +110,19 @@ namespace AKM.Gearbox.MES.API.Controllers
 
             try
             {
+                // XML oluştururken kullanacağımız veritabanı bilgilerini saklayacağımız değişkenler
+                string orderDesc = "Açıklama Yok";
+                string createdBy = "System";
+                bool isSuccess = false;
+
                 using (SqlConnection conn = new SqlConnection(connectionString))
                 {
                     conn.Open();
-                    string query = "UPDATE Orders SET OrderStatus = @Status WHERE OrderId = @OrderId";
 
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    // 1. ADIM: Sipariş Durumunu Güncelliyoruz
+                    string updateQuery = "UPDATE Orders SET OrderStatus = @Status WHERE OrderId = @OrderId";
+
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
                     {
                         cmd.Parameters.AddWithValue("@Status", request.Status);
                         cmd.Parameters.AddWithValue("@OrderId", request.OrderId);
@@ -125,9 +132,46 @@ namespace AKM.Gearbox.MES.API.Controllers
                         {
                             return NotFound($"Belirtilen OrderId ({request.OrderId}) bulunamadı.");
                         }
+
+                        isSuccess = true; // Güncelleme başarıyla gerçekleşti
+                    }
+
+                    // 2. ADIM: Eğer durum "Completed" olarak güncellendiyse, XML'e yazmak üzere sipariş detaylarını SELECT ile çekiyoruz
+                    if (isSuccess && request.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string selectQuery = "SELECT OrderDesc, CreatedBY FROM Orders WHERE OrderId = @OrderId";
+
+                        using (SqlCommand selectCmd = new SqlCommand(selectQuery, conn))
+                        {
+                            selectCmd.Parameters.AddWithValue("@OrderId", request.OrderId);
+
+                            using (SqlDataReader reader = selectCmd.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    // Veritabanındaki değerleri null kontrolü yaparak alıyoruz
+                                    orderDesc = reader["OrderDesc"] != DBNull.Value ? reader["OrderDesc"].ToString() : "Açıklama Yok";
+                                    createdBy = reader["CreatedBY"] != DBNull.Value ? reader["CreatedBY"].ToString() : "Operator";
+                                }
+                            }
+                        }
+
+                        // 3. ADIM: XML dosyasını üreten servisimizi çağırıyoruz
+                        try
+                        {
+                            var xmlService = new Services.XmlOutputService();
+                            xmlService.GenerateOrderCompletedXml(request.OrderId, orderDesc, createdBy);
+                        }
+                        catch (Exception xmlEx)
+                        {
+                            // XML üretilirken hata oluşursa logluyoruz ama API'nin istemciye başarılı dönmesini engellemiyoruz.
+                            // Çünkü veritabanı kaydı başarıyla güncellendi.
+                            Console.WriteLine($"[XML Tetikleme Hatası]: {xmlEx.Message}");
+                        }
                     }
                 }
-                return Ok(new { Message = $"Sipariş {request.OrderId} başarıyla güncellendi." });
+
+                return Ok(new { Message = $"Sipariş {request.OrderId} başarıyla güncellendi ve gerekli süreçler tetiklendi." });
             }
             catch (Exception ex)
             {

@@ -23,7 +23,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="⚙️" FontSize="26" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <StackPanel>
-                        <TextBlock Text="GEARBOX MES - MANAGEMENT PANEL" FontWeight="Bold" FontSize="18" Foreground="White"/>
+                        <TextBlock Text="GEARBOX MES - YÖNETİM PANELİ" FontWeight="Bold" FontSize="18" Foreground="White"/>
                         <TextBlock Text="İş Emri Takip, Düzenleme ve Yönetim Paneli" FontSize="11" Foreground="#93C5FD"/>
                     </StackPanel>
                 </StackPanel>

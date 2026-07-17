@@ -1,0 +1,215 @@
+﻿@page
+@model IndexModel
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
+@{
+    ViewData["Title"] = "Operator İş Emri Paneli";
+    // appsettings.json dosyasından API adresini dinamik olarak çekiyoruz
+    var apiBaseUrl = Configuration["ApiSettings:BaseUrl"];
+}
+
+<!-- Basit ve Temiz CSS Düzenlemesi -->
+<style>
+    .operator-container {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 20px auto;
+        max-width: 1200px;
+    }
+
+    .header-bar {
+        background-color: #2c3e50;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+        .order-table th {
+            background-color: #34495e;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        .order-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            background-color: #fdfdfd;
+        }
+
+        .order-table tr:hover td {
+            background-color: #f1f2f6;
+        }
+    /* Durum Etiketleri */
+    .badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 12px;
+        display: inline-block;
+    }
+
+    .badge-pending {
+        background-color: #ffeaa7;
+        color: #d63031;
+    }
+
+    .badge-inprogress {
+        background-color: #74b9ff;
+        color: #0984e3;
+    }
+
+    .badge-completed {
+        background-color: #55efc4;
+        color: #00b894;
+    }
+
+    /* Butonlar */
+    .btn {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+        margin-right: 5px;
+    }
+
+    .btn-start {
+        background-color: #0984e3;
+        color: white;
+    }
+
+        .btn-start:hover {
+            background-color: #0770c2;
+        }
+
+    .btn-complete {
+        background-color: #00b894;
+        color: white;
+    }
+
+        .btn-complete:hover {
+            background-color: #009475;
+        }
+</style>
+
+<div class="operator-container">
+    <div class="header-bar">
+        <h2>AKM Gearbox MES - Operatör Ekranı</h2>
+        <button onclick="loadOrders()" class="btn" style="background-color: #7f8c8d; color: white;">Listeyi Yenile 🔄</button>
+    </div>
+
+    <!-- Sipariş Tablosu -->
+    <table class="order-table">
+        <thead>
+            <tr>
+                <th>Sipariş ID</th>
+                <th>Açıklama</th>
+                <th>Durum</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody id="ordersTableBody">
+            <!-- Veriler JavaScript ile buraya dinamik dolacak -->
+            <tr>
+                <td colspan="4" style="text-align: center; color: gray;">Siparişler yükleniyor...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- JavaScript Kodumuz (Fetch API ile API ile Konuşacak) -->
+<script>
+    // appsettings.json'dan okunan dinamik C# değişkenini JS'e aktarıyoruz
+    const API_BASE_URL = "@apiBaseUrl";
+
+    // Sayfa açıldığında siparişleri yükle
+    document.addEventListener("DOMContentLoaded", () => {
+        loadOrders();
+    });
+
+    // 1. Siparişleri Getiren Fonksiyon (GET Request)
+    async function loadOrders() {
+        try {
+            const response = await fetch(API_BASE_URL);
+            if (!response.ok) throw new Error("API hatası oluştu.");
+
+            const orders = await response.json();
+            const tableBody = document.getElementById("ordersTableBody");
+            tableBody.innerHTML = ""; // Tabloyu temizle
+
+            orders.forEach(order => {
+                // Duruma göre renkli etiket (badge) seçimi
+                let badgeClass = "badge-pending";
+                if (order.orderStatus === "In Progress") badgeClass = "badge-inprogress";
+                if (order.orderStatus === "Completed") badgeClass = "badge-completed";
+
+                // Operatör buton mantığı: completed olan siparişlere buton göstermiyoruz
+                let actionButtons = "";
+                if (order.orderStatus === "Pending") {
+                    actionButtons = `<button class="btn btn-start" onclick="updateStatus('${order.orderId}', 'In Progress')">Üretime Başla ▶️</button>`;
+                } else if (order.orderStatus === "In Progress") {
+                    actionButtons = `<button class="btn btn-complete" onclick="updateStatus('${order.orderId}', 'Completed')">Tamamla ✔️</button>`;
+                } else {
+                    actionButtons = `<span style="color: gray; font-style: italic;">Üretim Tamamlandı</span>`;
+                }
+
+                const row = `
+                    <tr>
+                        <td><strong>${order.orderId}</strong></td>
+                        <td>${order.orderDesc || "Açıklama Yok"}</td>
+                        <td><span class="badge ${badgeClass}">${order.orderStatus}</span></td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+        } catch (error) {
+            console.error("Hata:", error);
+            document.getElementById("ordersTableBody").innerHTML =
+                `<tr><td colspan="4" style="text-align: center; color: red;">Veriler API'den çekilemedi. Port numarasını, appsettings.json yapılandırmasını ve CORS ayarlarını kontrol edin.</td></tr>`;
+        }
+    }
+
+    // 2. Sipariş Durumunu Güncelleyen Fonksiyon (POST Request)
+    async function updateStatus(orderId, newStatus) {
+        try {
+            // API'deki UpdateStatusRequest DTO'suna uygun gövdeyi hazırlıyoruz
+            const requestBody = {
+                orderId: orderId,
+                status: newStatus
+            };
+
+            const response = await fetch(`${API_BASE_URL}/update-status`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (response.ok) {
+                alert(`Sipariş (${orderId}) başarıyla '${newStatus}' durumuna güncellendi.`);
+                loadOrders(); // Tabloyu anlık yenile
+            } else {
+                const errText = await response.text();
+                alert("Durum güncellenirken hata oluştu: " + errText);
+            }
+        } catch (error) {
+            console.error("Hata:", error);
+            alert("API'ye bağlanılamadı.");
+        }
+    }
+</script>
