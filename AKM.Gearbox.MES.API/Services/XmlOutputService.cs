@@ -10,7 +10,7 @@ namespace AKM.Gearbox.MES.API.Services
 
         public XmlOutputService()
         {
-            // API'nin kendi altı yerine, bilgisayardaki ortak klasörün altındaki Output yolunu veriyoruz:
+            
             _outputDirectory = @"C:\MES_Files\Output"; // <-- Gerçek ortak klasör yolun hangisiyse buraya yazabilirsin
 
             // Eğer klasör yoksa otomatik oluşturulur.
